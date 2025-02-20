@@ -2,8 +2,8 @@ package db_test
 
 import (
 	"database/sql"
-	db "github/beatfraps/finbest_backend/db/sqlc"
-	"github/beatfraps/finbest_backend/utils"
+	db "github/beat-kuliah/finbest_backend/db/sqlc"
+	"github/beat-kuliah/finbest_backend/utils"
 	"log"
 	"os"
 	"testing"

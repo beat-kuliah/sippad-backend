@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github/beatfraps/finbest_backend/api"
+	"github/beat-kuliah/finbest_backend/api"
 )
 
 func main() {

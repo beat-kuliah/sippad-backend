@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	db "github/beatfraps/finbest_backend/db/sqlc"
+	db "github/beat-kuliah/finbest_backend/db/sqlc"
 	"net/http"
 )
 

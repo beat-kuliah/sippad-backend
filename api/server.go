@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	db "github/beatfraps/finbest_backend/db/sqlc"
-	"github/beatfraps/finbest_backend/utils"
+	db "github/beat-kuliah/finbest_backend/db/sqlc"
+	"github/beat-kuliah/finbest_backend/utils"
 	"net/http"
 
 	_ "github.com/lib/pq"
