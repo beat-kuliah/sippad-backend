@@ -8,6 +8,7 @@ type Config struct {
 	DBdriver       string `mapstructure:"DB_Driver"`
 	DB_source      string `mapstructure:"DB_Source"`
 	DB_source_live string `mapstructure:"DB_Source_LIVE"`
+	Signing_key    string `mapstructure:"SIGNING_KEY"`
 }
 
 func LoadConfig(path string) (config *Config, error error) {
