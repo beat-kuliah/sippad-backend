@@ -12,17 +12,19 @@ import (
 const createAccount = `-- name: CreateAccount :one
 INSERT INTO accounts (
     user_id,
-    currency
-) VALUES ($1, $2) RETURNING id, user_id, balance, currency, created_at
+    currency,
+    balance
+) VALUES ($1, $2, $3) RETURNING id, user_id, balance, currency, created_at
 `
 
 type CreateAccountParams struct {
-	UserID   int32  `json:"user_id"`
-	Currency string `json:"currency"`
+	UserID   int32   `json:"user_id"`
+	Currency string  `json:"currency"`
+	Balance  float64 `json:"balance"`
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
-	row := q.db.QueryRowContext(ctx, createAccount, arg.UserID, arg.Currency)
+	row := q.db.QueryRowContext(ctx, createAccount, arg.UserID, arg.Currency, arg.Balance)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -152,6 +154,29 @@ type UpdateAccountBalanceParams struct {
 
 func (q *Queries) UpdateAccountBalance(ctx context.Context, arg UpdateAccountBalanceParams) (Account, error) {
 	row := q.db.QueryRowContext(ctx, updateAccountBalance, arg.Balance, arg.ID)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Balance,
+		&i.Currency,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateAccountBalanceNew = `-- name: UpdateAccountBalanceNew :one
+UPDATE accounts SET balance = balance + $1 WHERE id = $2
+    RETURNING id, user_id, balance, currency, created_at
+`
+
+type UpdateAccountBalanceNewParams struct {
+	Amount float64 `json:"amount"`
+	ID     int64   `json:"id"`
+}
+
+func (q *Queries) UpdateAccountBalanceNew(ctx context.Context, arg UpdateAccountBalanceNewParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, updateAccountBalanceNew, arg.Amount, arg.ID)
 	var i Account
 	err := row.Scan(
 		&i.ID,

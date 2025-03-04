@@ -1,8 +1,9 @@
 -- name: CreateAccount :one
 INSERT INTO accounts (
     user_id,
-    currency
-) VALUES ($1, $2) RETURNING *;
+    currency,
+    balance
+) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: GetAccountByID :one
 SELECT * FROM accounts WHERE id = $1;
@@ -16,6 +17,10 @@ SELECT * FROM accounts ORDER BY id
 
 -- name: UpdateAccountBalance :one
 UPDATE accounts SET balance = $1 WHERE id = $2 RETURNING *;
+
+-- name: UpdateAccountBalanceNew :one
+UPDATE accounts SET balance = balance + sqlc.arg(amount) WHERE id = sqlc.arg(id)
+    RETURNING *;
 
 -- name: DeleteAccount :exec
 DELETE FROM accounts WHERE id = $1;

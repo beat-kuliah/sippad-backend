@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	db "github/beat-kuliah/finbest_backend/db/sqlc"
+	"github/beat-kuliah/finbest_backend/utils"
 	"net/http"
 	"time"
 )
@@ -19,6 +20,7 @@ func (u User) router(server *Server) {
 	serverGroup := server.router.Group("/users", AuthenticatedMiddleware())
 	serverGroup.GET("", u.listUsers)
 	serverGroup.GET("me", u.getLoggedInUser)
+	serverGroup.PATCH("name", u.updateName)
 }
 
 func (u *User) listUsers(c *gin.Context) {
@@ -43,15 +45,8 @@ func (u *User) listUsers(c *gin.Context) {
 }
 
 func (u *User) getLoggedInUser(c *gin.Context) {
-	value, exist := c.Get("user_id")
-	if !exist {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": "Not authorized to access resources"})
-		return
-	}
-
-	userId, ok := value.(int64)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Encountered an issue"})
+	userId, err := utils.GetActiveUser(c)
+	if err != nil {
 		return
 	}
 
@@ -68,9 +63,45 @@ func (u *User) getLoggedInUser(c *gin.Context) {
 	c.JSON(http.StatusOK, UserResponse{}.toUserResponse(&user))
 }
 
+type UpdateNameType struct {
+	Name string `json:"name" binding:"required"`
+}
+
+func (u *User) updateName(c *gin.Context) {
+	userId, err := utils.GetActiveUser(c)
+	if err != nil {
+		return
+	}
+
+	var userInfo UpdateNameType
+
+	if err := c.ShouldBindJSON(&userInfo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	arg := db.UpdateNameParams{
+		ID: userId,
+		Name: sql.NullString{
+			String: userInfo.Name,
+			Valid:  true,
+		},
+		UpdatedAt: time.Now(),
+	}
+
+	user, err := u.server.queries.UpdateName(context.Background(), arg)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, UserResponse{}.toUserResponse(&user))
+}
+
 type UserResponse struct {
 	ID        int64     `json:"id"`
 	Username  string    `json:"username"`
+	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -79,6 +110,7 @@ func (u UserResponse) toUserResponse(user *db.User) *UserResponse {
 	return &UserResponse{
 		ID:        user.ID,
 		Username:  user.Username,
+		Name:      user.Name.String,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
