@@ -81,11 +81,8 @@ func (u *User) updateName(c *gin.Context) {
 	}
 
 	arg := db.UpdateNameParams{
-		ID: userId,
-		Name: sql.NullString{
-			String: userInfo.Name,
-			Valid:  true,
-		},
+		ID:        userId,
+		Name:      userInfo.Name,
 		UpdatedAt: time.Now(),
 	}
 
@@ -110,7 +107,7 @@ func (u UserResponse) toUserResponse(user *db.User) *UserResponse {
 	return &UserResponse{
 		ID:        user.ID,
 		Username:  user.Username,
-		Name:      user.Name.String,
+		Name:      user.Name,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
