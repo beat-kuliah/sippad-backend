@@ -1,8 +1,26 @@
 -- name: CreateUser :one
 INSERT INTO users (
                    username,
-                   hashed_password
-) VALUES ($1, $2) RETURNING *;
+                   name,
+                   role_id,
+                   hashed_password,
+                   created_by,
+                   updated_by
+) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+
+-- name: GetUserWithRole :one
+SELECT
+    u.id,
+    u.username,
+    u.name,
+    u.created_at,
+    u.updated_at,
+    r.id AS role_id,
+    r.name AS role_name,
+    r.description AS role_description
+FROM users u
+         LEFT JOIN roles r ON u.role_id = r.id
+WHERE u.id = $1;
 
 -- name: GetUserByID :one
 SELECT * FROM users WHERE id = $1;

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	db "github/beat-kuliah/finbest_backend/db/sqlc"
-	"github/beat-kuliah/finbest_backend/utils"
+	db "github/beat-kuliah/sip_pad_backend/db/sqlc"
+	"github/beat-kuliah/sip_pad_backend/utils"
 	"net/http"
 	"time"
 )
@@ -95,12 +95,18 @@ func (u *User) updateName(c *gin.Context) {
 	c.JSON(http.StatusOK, UserResponse{}.toUserResponse(&user))
 }
 
+type RoleResponse struct {
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
 type UserResponse struct {
-	ID        int64     `json:"id"`
-	Username  string    `json:"username"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        int64         `json:"id"`
+	Username  string        `json:"username"`
+	Name      string        `json:"name"`
+	Role      *RoleResponse `json:"role,omitempty"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 }
 
 func (u UserResponse) toUserResponse(user *db.User) *UserResponse {
@@ -108,7 +114,27 @@ func (u UserResponse) toUserResponse(user *db.User) *UserResponse {
 		ID:        user.ID,
 		Username:  user.Username,
 		Name:      user.Name,
+		Role:      nil,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
+	}
+}
+
+func (u UserResponse) toUserResponseWithRole(row db.GetUserWithRoleRow) *UserResponse {
+	var role *RoleResponse
+	if row.RoleID.Valid {
+		role = &RoleResponse{
+			ID:          row.RoleID.Int64,
+			Name:        row.RoleName.String,
+			Description: row.RoleDescription.String,
+		}
+	}
+	return &UserResponse{
+		ID:        row.ID,
+		Username:  row.Username,
+		Name:      row.Name,
+		Role:      role,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
 	}
 }

@@ -3,8 +3,8 @@ package db_test
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
-	db "github/beat-kuliah/finbest_backend/db/sqlc"
-	"github/beat-kuliah/finbest_backend/utils"
+	db "github/beat-kuliah/sip_pad_backend/db/sqlc"
+	"github/beat-kuliah/sip_pad_backend/utils"
 	"log"
 	"sync"
 	"testing"
@@ -28,6 +28,7 @@ func createRandomUser(t *testing.T) db.User {
 
 	arg := db.CreateUserParams{
 		Username:       utils.RandomUsername(),
+		Name:           utils.RandomUsername(),
 		HashedPassword: hashedPassword,
 	}
 

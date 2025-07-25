@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/go-playground/validator/v10"
-	"github/beat-kuliah/finbest_backend/utils"
+	"github/beat-kuliah/sip_pad_backend/utils"
 )
 
 var currencyValidator validator.Func = func(fl validator.FieldLevel) bool {

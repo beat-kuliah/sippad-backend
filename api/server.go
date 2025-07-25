@@ -9,8 +9,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/golodash/galidator"
 	_ "github.com/lib/pq"
-	db "github/beat-kuliah/finbest_backend/db/sqlc"
-	"github/beat-kuliah/finbest_backend/utils"
+	db "github/beat-kuliah/sip_pad_backend/db/sqlc"
+	"github/beat-kuliah/sip_pad_backend/utils"
 	"net/http"
 )
 

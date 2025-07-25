@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
-	db "github/beat-kuliah/finbest_backend/db/sqlc"
-	"github/beat-kuliah/finbest_backend/utils"
+	db "github/beat-kuliah/sip_pad_backend/db/sqlc"
+	"github/beat-kuliah/sip_pad_backend/utils"
 	"net/http"
 )
 
@@ -24,6 +24,7 @@ func (a Auth) router(server *Server) {
 
 type UserParams struct {
 	Username string `json:"username" binding:"required"`
+	RoleID   *int64 `json:"roleID"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -40,9 +41,18 @@ func (a *Auth) register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	// set sql NullINT64
+	var roleID sql.NullInt64
+	if user.RoleID != nil {
+		roleID = sql.NullInt64{Int64: *user.RoleID, Valid: true}
+	} else {
+		roleID = sql.NullInt64{Valid: false}
+	}
 
 	args := db.CreateUserParams{
 		Username:       user.Username,
+		Name:           user.Username,
+		RoleID:         roleID,
 		HashedPassword: hashedPassword,
 	}
 
@@ -57,7 +67,8 @@ func (a *Auth) register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, UserResponse{}.toUserResponse(&newUser))
+	newUserWithRole, err := a.server.queries.GetUserWithRole(context.Background(), newUser.ID)
+	c.JSON(http.StatusCreated, UserResponse{}.toUserResponseWithRole(newUserWithRole))
 
 }
 

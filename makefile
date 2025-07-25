@@ -1,13 +1,10 @@
 c_m:
-	# created a new migrations
 	migrate create -ext sql -dir db/migrations -seq $(name)
 
 p_up:
-	# postgress up - create postgress server
 	docker-compose up -d
 
 p_down:
-	# postgres down - delete postgres server
 	docker-compose down
 
 db_up:
@@ -17,18 +14,16 @@ db_down:
 	docker exec -it sip_pad_postgres dropdb --username=root sip_pad_db
 
 m_up:
-	# run migrate up
-	migrate -path db/migrations -database "postgres://root:secret@localhost:5432/sip_pad_db?sslmode=disable" up
+	migrate -path db/migrations -database "postgres://postgres:secret@192.168.1.204:5432/sip_pad_db?sslmode=disable" up
 
 m_down:
-	# run migrate down
-	migrate -path db/migrations -database "postgres://root:secret@localhost:5432/sip_pad_db?sslmode=disable" down
+	migrate -path db/migrations -database "postgres://postgres:secret@192.168.1.204:5432/sip_pad_db?sslmode=disable" down
 
 sqlc:
 	sqlc generate
 
 start:
-	CompileDaemon -command="./finbest_backend"
+	CompileDaemon -build="go build -o app.exe main.go" -command="./app.exe"
 
 test:
 	go test -v -cover ./...
